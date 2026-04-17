@@ -1,2 +1,2 @@
-# Gestion_Intercambio_Estudiantial
+# Gestion_Intercambio_Estudiantil
 Gestión de intercambios estudiantiles.
