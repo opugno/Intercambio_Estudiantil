@@ -13,8 +13,8 @@ mvn -v
 ~~~
 
 ## Estructura del proyecto
-- **Paquete principal:** `com.mycompany.intercambioEstudiantil`
-- **Clase de entrada:** `com.mycompany.intercambioEstudiantil.Main`
+- **Paquete principal:** `com.mycompany.mavenproject3`
+- **Clase de entrada:** `com.mycompany.mavenproject3.Main`
 - **Persistencia:** En memoria (no usa BD). Al cerrar el programa, se pierde el estado.
 
 Estructura de carpetas esperada:
