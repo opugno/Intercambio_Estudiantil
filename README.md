@@ -58,7 +58,7 @@ pom.xml
       <artifactId>exec-maven-plugin</artifactId>
       <version>3.1.0</version>
       <configuration>
-        <mainClass>com.mycompany.intercambioEstudiantil.Main</mainClass>
+        <mainClass>com.mycompany.mavenproject3.Main</mainClass>
       </configuration>
     </plugin>
   </plugins>
@@ -76,7 +76,7 @@ mvn clean compile -DskipTests
 
 ### Opción A — Maven Exec Plugin (recomendada)
 ~~~
-mvn exec:java -Dexec.mainClass=com.mycompany.intercambioEstudiantil.Main
+mvn exec:java -Dexec.mainClass=com.mycompany.mavenproject3.Main
 ~~~
 Si en el `pom.xml` ya configuraste `<mainClass>`, basta con:
 ~~~
@@ -85,7 +85,7 @@ mvn exec:java
 
 ### Opción B — Desde IDE
 - **NetBeans**: clic derecho sobre `Main.java` → **Run File**  
-  (o **Project Properties → Run → Main Class** y setea `com.mycompany.intercambioEstudiantil.Main`).
+  (o **Project Properties → Run → Main Class** y setea `com.mycompany.mavenproject3.Main`).
 - **IntelliJ/VS Code**: abre `Main.java` y ejecuta la clase `Main` (botón ▶).
 
 ## Uso (menú principal)
@@ -113,14 +113,14 @@ EN_PROCESO, COMPLETO
 
 ## Problemas comunes y soluciones
 
-**1) Error: `Could not find or load main class com.mycompany.intercambioEstudiantil.Main`**  
+**1) Error: `Could not find or load main class com.mycompany.mavenproject3.Main`**  
 - **Causa:** Ruta/paquete no coincide con la estructura real, o `exec-maven-plugin` no apunta a la clase correcta.  
 - **Solución:**
-  - Verifica que el **package** en `Main.java` sea exactamente `package com.mycompany.intercambioEstudiantil;`
+  - Verifica que el **package** en `Main.java` sea exactamente `package com.mycompany.mavenproject3;`
   - Verifica la carpeta: `src/main/java/com/mycompany/intercambioEstudiantil/Main.java`
   - Ejecuta:
     ~~~
-    mvn -q -Dexec.cleanupDaemonThreads=false exec:java -Dexec.mainClass=com.mycompany.intercambioEstudiantil.Main
+    mvn -q -Dexec.cleanupDaemonThreads=false exec:java -Dexec.mainClass=com.mycompany.mavenproject3.Main
     ~~~
 
 **2) `mvn` o `java` no reconocidos**  
