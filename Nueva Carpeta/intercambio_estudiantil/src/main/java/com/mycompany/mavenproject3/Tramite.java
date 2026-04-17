@@ -1,10 +1,7 @@
 package com.mycompany.mavenproject3;
 import java.util.*;
 
-/**
- *
- * @author sonailslove
- */
+//cada tramite tiene los documentos subidos por el estudiante para postular a un convenio
 public class Tramite
 {
     public enum Estado {EN_PROCESO, COMPLETO}

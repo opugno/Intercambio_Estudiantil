@@ -1,5 +1,5 @@
 package com.mycompany.mavenproject3;
-import java.util.*;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -20,10 +20,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
 
-/**
- *
- * @author sonailslove
- */
+
 public class Main extends JFrame
 {
     private Control herramientas;
