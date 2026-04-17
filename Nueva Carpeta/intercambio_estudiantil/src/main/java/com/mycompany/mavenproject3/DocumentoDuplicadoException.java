@@ -1,10 +1,4 @@
 package com.mycompany.mavenproject3;
-import java.util.*;
-
-/**
- *
- * @author sonailslove
- */
-public class DocumentoDuplicadoException {
-
+public class DocumentoDuplicadoException extends Exception {
+    public DocumentoDuplicadoException(String msg) { super(msg); }
 }

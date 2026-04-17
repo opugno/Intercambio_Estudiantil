@@ -1,10 +1,7 @@
 package com.mycompany.mavenproject3;
-import java.util.*;
-
-/**
- *
- * @author sonailslove
- */
-public class EstudianteNoEncontradoException {
-
+public class EstudianteNoEncontradoException extends Exception 
+{
+    public EstudianteNoEncontradoException(String rut) {
+        super("No se encontró estudiante con RUT: " + rut);
+    }
 }
