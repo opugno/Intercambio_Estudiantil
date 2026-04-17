@@ -25,4 +25,62 @@ public class Estudiante
         this.estadoProceso = estadoProceso;
         this.convenio = convenio;
     }
+
+    //Métodos Getter y Setter
+    public String getRut(){
+        return rut;  
+    }
+    public void setRut(String rut){
+        this.rut = rut;
+    }
+    
+    public String getNombre(){
+        return nombre;  
+    }
+    public void setNombre(String nombre){
+        this.nombre = nombre;
+    }
+    
+    public String getCarrera(){
+        return carrera;  
+    }
+    public void setCarrera(String carrera){
+        this.carrera = carrera;
+    }
+    
+    public int getAnioIngreso(){
+        return anioIngreso;  
+    }
+    public void setAnioIngreso(int anioIngreso){
+        this.anioIngreso = anioIngreso;
+    }
+    
+    
+    public String getEstadoProceso(){
+        return estadoProceso;  
+    }
+    public void setEstadoProceso(String estadoProceso){
+        this.estadoProceso = estadoProceso;
+    }
+    
+    public Convenio getConvenio(){
+        return convenio;  
+    }
+    public void setConvenio(Convenio convenio){
+        this.convenio = convenio;
+    }
+    
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Estudiante)) return false;
+        Estudiante other = (Estudiante) o;
+        return this.rut != null && this.rut.equals(other.rut);
+    }
+
+    @Override
+    public int hashCode() {
+        return rut == null ? 0 : rut.hashCode();
+    }
 }
