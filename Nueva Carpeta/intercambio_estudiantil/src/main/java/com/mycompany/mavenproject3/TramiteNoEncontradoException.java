@@ -1,10 +1,7 @@
 package com.mycompany.mavenproject3;
-import java.util.*;
-
-/**
- *
- * @author sonailslove
- */
-public class TramiteNoEncontradoException {
-
+public class TramiteNoEncontradoException extends Exception {
+    public TramiteNoEncontradoException(String idTramite) {
+        super("No se encontró el trámite con ID: " + idTramite);
+    }
 }
+

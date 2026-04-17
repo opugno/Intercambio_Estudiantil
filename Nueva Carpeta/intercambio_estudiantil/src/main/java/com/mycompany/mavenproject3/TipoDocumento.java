@@ -1,9 +1,12 @@
 package com.mycompany.mavenproject3;
 
-/**
- *
- * @author sonailslove
- */
-public class TipoDocumento {
-
+public enum TipoDocumento 
+{
+    CERT_NACIMIENTO,
+    CERT_ALUMNO_REGULAR,
+    PASAPORTE,
+    CERTIFICADO_NOTAS,
+    CARTA_MOTIVACION,
+    CV,
+    CERTIFICADO_IDIOMA    
 }

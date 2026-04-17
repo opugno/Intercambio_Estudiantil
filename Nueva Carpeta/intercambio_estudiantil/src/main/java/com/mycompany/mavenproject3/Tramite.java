@@ -5,7 +5,7 @@ import java.util.*;
  *
  * @author sonailslove
  */
-public class Tramite.java 
+public class Tramite
 {
     public enum Estado {EN_PROCESO, COMPLETO}
     

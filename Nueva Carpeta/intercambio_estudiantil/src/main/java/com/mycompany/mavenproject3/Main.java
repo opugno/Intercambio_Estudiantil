@@ -24,7 +24,7 @@ import java.util.Map;
  *
  * @author sonailslove
  */
-public class Main.java extends JFrame
+public class Main extends JFrame
 {
     private Control herramientas;
     private JTabbedPane tabbedPane;

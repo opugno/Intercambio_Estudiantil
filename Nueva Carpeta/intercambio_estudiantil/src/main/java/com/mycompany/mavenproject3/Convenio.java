@@ -5,7 +5,7 @@ import java.util.*;
  *
  * @author sonailslove
  */
-public class Convenio.java 
+public class Convenio
 {
      //ATRIBUTOS
     private String idConvenio;
