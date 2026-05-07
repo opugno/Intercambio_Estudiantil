@@ -209,7 +209,9 @@ public class DataStore
                     wt.newLine();
 
                     // Iterar documentos con getDocumentos()
-                    for (var entry : t.getDocumentos().entrySet()) {
+                    for (Map.Entry<TipoDocumento, DocumentoSubido> entry : t.getDocumentos().entrySet()) {
+
+                    //for (var entry : t.getDocumentos().entrySet()) {
                         DocumentoSubido d = entry.getValue();
                         wd.write(String.join(";", Arrays.asList(
                                 t.getIdTramite(),

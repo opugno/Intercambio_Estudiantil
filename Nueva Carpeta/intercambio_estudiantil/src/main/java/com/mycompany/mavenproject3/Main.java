@@ -24,6 +24,8 @@ import java.util.Map;
 public class Main extends JFrame
 {
     private Control herramientas;
+    //Para la persistencia de los datos 
+    private DataStore dataStore;
     private JTabbedPane tabbedPane;
     
     // Paneles principales
@@ -43,8 +45,19 @@ public class Main extends JFrame
     public Main() 
     {
         herramientas = new Control();
-        herramientas.datos(); // Cargar datos iniciales
-        
+        //herramientas.datos(); // Cargar datos iniciales
+        dataStore = new DataStore(herramientas); // NUEVO
+
+        // Cargar datos persistentes
+        try 
+{
+            dataStore.load();
+            System.out.println("Datos cargados exitosamente");
+        } catch (java.io.IOException e) {
+            System.out.println("No se encontraron datos previos, usando datos iniciales");
+            herramientas.datos(); // Solo si no hay datos guardados
+        }
+
         initComponents();
         actualizarCombos();
         actualizarTablas();
@@ -52,7 +65,16 @@ public class Main extends JFrame
     
     private void initComponents() {
         setTitle("Sistema de Gestión de Intercambio Estudiantil");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); //Cambiado
+        // NUEVO: WindowListener para guardar al cerrar
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                guardarYSalir();
+            }
+        });
+        //Antes
+        //setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         
         // Crear el panel con pestañas
@@ -81,6 +103,29 @@ public class Main extends JFrame
         panelInfo.setBorder(BorderFactory.createEtchedBorder());
         JLabel lblInfo = new JLabel("Sistema de Intercambio v1.0");
         panelInfo.add(lblInfo);
+
+        // NUEVO: Botón guardar
+        JButton btnGuardar = new JButton("💾 Guardar Datos");
+        btnGuardar.setToolTipText("Guardar todos los cambios en disco");
+        btnGuardar.addActionListener(e -> 
+        {
+            try 
+            {
+                dataStore.save();
+                JOptionPane.showMessageDialog(this, 
+                    "Datos guardados correctamente", 
+                    "Éxito", 
+                    JOptionPane.INFORMATION_MESSAGE);
+            } catch (java.io.IOException ex) 
+            {
+                JOptionPane.showMessageDialog(this,
+                    "Error al guardar: " + ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        panelInfo.add(btnGuardar);
+
         add(panelInfo, BorderLayout.SOUTH);
         
         // Configuración de la ventana
@@ -1489,6 +1534,41 @@ public class Main extends JFrame
         return out;
     }
 
+        /**
+     * Guarda los datos y cierra la aplicación
+     */
+    private void guardarYSalir() 
+    {
+        int confirmacion = JOptionPane.showConfirmDialog(
+            this,
+            "¿Desea guardar los cambios antes de salir?",
+            "Confirmar salida",
+            JOptionPane.YES_NO_CANCEL_OPTION
+        );
+
+        if (confirmacion == JOptionPane.YES_OPTION) 
+        {
+            try 
+            {
+                dataStore.save();
+                JOptionPane.showMessageDialog(this, 
+                    "Datos guardados exitosamente", 
+                    "Éxito", 
+                    JOptionPane.INFORMATION_MESSAGE);
+                System.exit(0);
+            } catch (java.io.IOException ex) 
+            {
+                JOptionPane.showMessageDialog(this,
+                    "Error al guardar: " + ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        } else if (confirmacion == JOptionPane.NO_OPTION) 
+        {
+            System.exit(0);
+        }
+        // Si es CANCEL, no hace nada
+    }
     
     public static void main(String[] args) {
         try {
