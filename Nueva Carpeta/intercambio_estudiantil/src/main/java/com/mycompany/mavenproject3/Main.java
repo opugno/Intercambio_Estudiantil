@@ -530,8 +530,57 @@ public class Main extends JFrame
                     JOptionPane.ERROR_MESSAGE);
                 return;
             }
+               
+            String idConvenioReal = idConvenio.split(" - ")[0];
+    
+            //Usar el método con excepciones
+            try {
+                herramientas.subirDocumentoATramiteStrict(idConvenioReal, idTramite, tipo, nombreArchivo);
+
+                JOptionPane.showMessageDialog(this, 
+                    "Documento subido exitosamente", 
+                    "Éxito", 
+                    JOptionPane.INFORMATION_MESSAGE);
+
+                actualizarEstadoTramite(comboConvenioDoc, comboTramite, areaEstado);
+                actualizarTablas();
+                txtNombreArchivo.setText("");
+
+            } catch (TramiteNoEncontradoException ex) {
+                JOptionPane.showMessageDialog(this,
+                    "Error: " + ex.getMessage(),
+                    "Trámite no encontrado",
+                    JOptionPane.ERROR_MESSAGE);
+
+            } catch (DocumentoDuplicadoException ex) {
+                JOptionPane.showMessageDialog(this,
+                    "Error: " + ex.getMessage() + "\n¿Desea reemplazarlo?",
+                    "Documento duplicado",
+                    JOptionPane.WARNING_MESSAGE);
+
+                // Opcional: permitir reemplazo
+                int opcion = JOptionPane.showConfirmDialog(this,
+                    "¿Desea reemplazar el documento existente?",
+                    "Confirmar reemplazo",
+                    JOptionPane.YES_NO_OPTION);
+
+                if (opcion == JOptionPane.YES_OPTION) {
+                    // Eliminar el documento existente y volver a subir
+                    herramientas.eliminarDocumentoDeTramite(idConvenioReal, idTramite, tipo);
+                    herramientas.subirDocumentoATramite(idConvenioReal, idTramite, tipo, nombreArchivo);
+                    JOptionPane.showMessageDialog(this, "Documento reemplazado exitosamente");
+                    actualizarEstadoTramite(comboConvenioDoc, comboTramite, areaEstado);
+                    actualizarTablas();
+                }
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this,
+                    "Error inesperado: " + ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            }
             
-            Convenio convenio = herramientas.buscarConvenio(idConvenio.split(" - ")[0]);
+            /*Convenio convenio = herramientas.buscarConvenio(idConvenio.split(" - ")[0]);
             if (convenio == null) return;
             
             Tramite tramite = convenio.getTramites().stream()
@@ -558,7 +607,7 @@ public class Main extends JFrame
                 "Éxito", 
                 JOptionPane.INFORMATION_MESSAGE);
             
-            txtNombreArchivo.setText("");
+            txtNombreArchivo.setText("");*/
         });
         
         JButton btnEliminarDoc = new JButton("Eliminar Documento");
@@ -699,6 +748,82 @@ public class Main extends JFrame
         });
         panelBotones.add(btnDetalles);
         panelConvenios.add(panelBotones, BorderLayout.SOUTH);
+
+        // Ver estudiantes en Convenios
+        JButton btnVerEstudiantes = new JButton("Ver Estudiantes del Convenio");
+        btnVerEstudiantes.addActionListener(e -> {
+            int fila = tablaConvenios.getSelectedRow();
+            if (fila >= 0) {
+                String idConvenio = (String) modeloTablaConvenios.getValueAt(fila, 0);
+                mostrarEstudiantesDelConvenio(idConvenio);
+            } else {
+                JOptionPane.showMessageDialog(this, 
+                    "Seleccione un convenio", 
+                    "Información", 
+                    JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
+        panelBotones.add(btnVerEstudiantes);
+
+        /**
+        * Muestra un diálogo con todos los estudiantes que tienen trámites en un convenio
+        * @param idConvenio ID del convenio
+        */
+        private void mostrarEstudiantesDelConvenio(String idConvenio) {
+            Convenio convenio = herramientas.buscarConvenio(idConvenio);
+            if (convenio == null) {
+                JOptionPane.showMessageDialog(this, "Convenio no encontrado");
+                return;
+            }
+
+            JDialog dialog = new JDialog(this, "Estudiantes en " + convenio.getNombre(), true);
+            dialog.setLayout(new BorderLayout());
+
+            // Obtener estudiantes únicos del convenio
+            Set<Estudiante> estudiantesUnicos = new java.util.HashSet<>();
+            for (Tramite t : convenio.getTramites()) {
+                if (t.getEstudiante() != null) {
+                    estudiantesUnicos.add(t.getEstudiante());
+                }
+            }
+
+            // Crear tabla
+            String[] columnas = {"RUT", "Nombre", "Carrera", "Estado Trámite", "Documentos"};
+            DefaultTableModel modelo = new DefaultTableModel(columnas, 0);
+
+            for (Estudiante est : estudiantesUnicos) {
+                // Buscar el trámite de este estudiante en este convenio
+                for (Tramite t : convenio.getTramites()) {
+                    if (t.getEstudiante().equals(est)) {
+                        modelo.addRow(new Object[]{
+                            est.getRut(),
+                            est.getNombre(),
+                            est.getCarrera(),
+                            t.getEstado().name(),
+                            t.getDocumentos().size() + "/" + convenio.getRequisitos().size()
+                        });
+                    }
+                }
+            }
+
+            JTable tabla = new JTable(modelo);
+            JScrollPane scroll = new JScrollPane(tabla);
+            dialog.add(scroll, BorderLayout.CENTER);
+
+            JPanel panelInfo = new JPanel();
+            panelInfo.add(new JLabel("Total de estudiantes: " + estudiantesUnicos.size()));
+            dialog.add(panelInfo, BorderLayout.NORTH);
+
+            JButton btnCerrar = new JButton("Cerrar");
+            btnCerrar.addActionListener(e -> dialog.dispose());
+            JPanel panelBoton = new JPanel();
+            panelBoton.add(btnCerrar);
+            dialog.add(panelBoton, BorderLayout.SOUTH);
+
+            dialog.setSize(600, 400);
+            dialog.setLocationRelativeTo(this);
+            dialog.setVisible(true);
+        }
 
         // --- Lógica de búsqueda: acciones y refresco de tablas
         Runnable limpiarTablas = () -> {
