@@ -223,6 +223,37 @@ public class Main extends JFrame
                 return;
             }
             
+            //Validar formato RUT
+            if (!validarFormatoRUT(rut)) 
+            {
+                JOptionPane.showMessageDialog(this,
+                    "Formato de RUT inválido. Use formato: XX.XXX.XXX-X",
+                    "Error de validación",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            //Validar nombre (solo letras y espacios)
+            if (!nombre.matches("^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+$")) 
+            {
+                JOptionPane.showMessageDialog(this,
+                    "El nombre solo puede contener letras y espacios",
+                    "Error de validación",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            //Validar año razonable
+            int anioActual = java.time.Year.now().getValue();
+            if (anio < 1950 || anio > anioActual + 1) 
+            {
+                JOptionPane.showMessageDialog(this,
+                    "Año de ingreso inválido (debe estar entre 1950 y " + (anioActual + 1) + ")",
+                    "Error de validación",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
             if (herramientas.buscarEstudiante(rut) != null) {
                 JOptionPane.showMessageDialog(this, 
                     "Ya existe un estudiante con ese RUT", 
@@ -1748,6 +1779,46 @@ public class Main extends JFrame
         }
         // Si es CANCEL, no hace nada
     }
+
+    /**
+    * Valida el formato del RUT chileno (XX.XXX.XXX-X)
+    * @param rut RUT a validar
+    * @return true si el formato es válido
+    */
+    private boolean validarFormatoRUT(String rut) 
+    {
+        if (rut == null || rut.isBlank()) return false;
+
+        // Patrón: 11.111.111-1 o 11111111-1
+        String patron = "^\\d{1,2}\\.?\\d{3}\\.?\\d{3}-[\\dkK]$";
+        if (!rut.matches(patron)) {
+            return false;
+        }
+
+        // Validación del dígito verificador
+        String rutLimpio = rut.replaceAll("[^\\dk]", "");
+        if (rutLimpio.length() < 2) return false;
+
+        String cuerpo = rutLimpio.substring(0, rutLimpio.length() - 1);
+        char dv = rutLimpio.charAt(rutLimpio.length() - 1);
+
+        try {
+            int suma = 0;
+            int multiplicador = 2;
+
+            for (int i = cuerpo.length() - 1; i >= 0; i--) {
+                suma += Character.getNumericValue(cuerpo.charAt(i)) * multiplicador;
+                multiplicador = multiplicador == 7 ? 2 : multiplicador + 1;
+            }
+
+            int resto = 11 - (suma % 11);
+            char dvCalculado = resto == 11 ? '0' : resto == 10 ? 'k' : (char) ('0' + resto);
+
+            return Character.toLowerCase(dv) == Character.toLowerCase(dvCalculado);
+        } catch (Exception e) {
+            return false;
+        }
+   }
     
     public static void main(String[] args) {
         try {
