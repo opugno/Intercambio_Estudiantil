@@ -328,4 +328,47 @@ public class Control
                 .filter(e -> e.getEstadoProceso() != null && e.getEstadoProceso().equalsIgnoreCase(estado))
                 .collect(java.util.stream.Collectors.toList());
     }
+
+    public boolean editarEstudiante(String rut, String nuevoNombre, 
+                                 String nuevaCarrera, Integer nuevoAnio, 
+                                 String nuevoEstado) {
+    Estudiante e = buscarEstudiante(rut);
+    if (e == null) return false;
+    
+    if (nuevoNombre != null && !nuevoNombre.isBlank()) {
+        e.setNombre(nuevoNombre);
+    }
+    if (nuevaCarrera != null && !nuevaCarrera.isBlank()) {
+        e.setCarrera(nuevaCarrera);
+    }
+    if (nuevoAnio != null && nuevoAnio > 0) {
+        e.setAnioIngreso(nuevoAnio);
+    }
+    if (nuevoEstado != null && !nuevoEstado.isBlank()) {
+        e.setEstadoProceso(nuevoEstado);
+    }
+    return true;
+}
+
+    /**
+     * Elimina un estudiante del sistema
+     * También lo elimina de todos los trámites asociados
+     * @param rut RUT del estudiante a eliminar
+     * @return true si se eliminó exitosamente
+     */
+    public boolean eliminarEstudiante(String rut) {
+        Estudiante e = buscarEstudiante(rut);
+        if (e == null) return false;
+
+        // Eliminar de todos los trámites
+        for (Convenio c : getConvenios()) {
+            c.getTramites().removeIf(t -> 
+                t.getEstudiante() != null && 
+                t.getEstudiante().getRut().equals(rut)
+            );
+        }
+
+        // Eliminar del mapa
+        return estudiantes.remove(rut) != null;
+    }
 }
