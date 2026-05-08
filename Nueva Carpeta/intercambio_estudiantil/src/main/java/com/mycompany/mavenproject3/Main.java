@@ -3,11 +3,8 @@ package com.mycompany.mavenproject3;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.function.Consumer;
+
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -16,8 +13,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.Map;
 
 

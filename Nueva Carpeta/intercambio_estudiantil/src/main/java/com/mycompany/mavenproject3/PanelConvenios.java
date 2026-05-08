@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.mycompany.mavenproject3;
 
 import javax.swing.*;
@@ -15,38 +10,41 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.function.Consumer;
 
+/**
+ * Panel para la visualización, búsqueda y gestión de convenios y trámites.
+ * Permite filtrar información por estudiante, convenio o estado del trámite.
+ */
 public class PanelConvenios extends JPanel {
 
-    private Control herramientas;
-    private JTabbedPane tabbedPane;
+    private Control herramientas; // Clase controladora para acceder a los datos
+    private JTabbedPane tabbedPane; // Referencia al contenedor de pestañas principal
+    private DefaultTableModel modeloTablaConvenios; // Modelo de datos para la tabla superior
+    private DefaultTableModel modeloTablaTramites;  // Modelo de datos para la tabla inferior
 
     public PanelConvenios(Control herramientas, JTabbedPane tabbedPane) {
-
         this.herramientas = herramientas;
         this.tabbedPane = tabbedPane;
-
         initComponents();
     }
-    private DefaultTableModel modeloTablaConvenios;
-    private DefaultTableModel modeloTablaTramites;
 
     private void initComponents() {
+        // Configuración básica del panel principal
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Panel superior con título y buscador
+        // --- SECCIÓN NORTE: Título y Botones de acción rápida ---
         JPanel panelNorth = new JPanel(new BorderLayout());
         JPanel panelTitulo = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JLabel titulo = new JLabel("Listado de Convenios y Trámites");
         titulo.setFont(new Font("Arial", Font.BOLD, 16));
         panelTitulo.add(titulo);
 
+        // Botón para refrescar manualmente las tablas
         JButton btnActualizar = new JButton("Actualizar");
-        //btnActualizar.addActionListener(e -> actualizarTablas());
+        btnActualizar.addActionListener(e -> actualizarTablas());
         panelTitulo.add(btnActualizar);
 
-        panelNorth.add(panelTitulo, BorderLayout.NORTH);
-        
+        // Botón para exportar la base de datos a un archivo de texto
         JButton btnExportAll = new JButton("Exportar Todo (.txt)");
         btnExportAll.addActionListener(ev -> {
             JFileChooser fc = new JFileChooser();
@@ -55,18 +53,20 @@ public class PanelConvenios extends JPanel {
             int opt = fc.showSaveDialog(this);
             if (opt == JFileChooser.APPROVE_OPTION) {
                 File f = fc.getSelectedFile();
-                //boolean ok = exportarTodoAUnTexto(f);
-                //if (ok) JOptionPane.showMessageDialog(this, "Exportación exitosa: " + f.getAbsolutePath(), "Exportar", JOptionPane.INFORMATION_MESSAGE);
+                // Aquí iría la lógica de escritura en archivo
             }
         });
         panelTitulo.add(btnExportAll);
 
-        // --- Panel buscador
+        panelNorth.add(panelTitulo, BorderLayout.NORTH);
+
+        // --- SECCIÓN DE BÚSQUEDA Y FILTROS ---
         JPanel panelBuscar = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(6, 6, 6, 6);
         gbc.anchor = GridBagConstraints.WEST;
 
+        // Selector de modo de búsqueda
         gbc.gridx = 0; gbc.gridy = 0;
         panelBuscar.add(new JLabel("Buscar en:"), gbc);
 
@@ -75,6 +75,7 @@ public class PanelConvenios extends JPanel {
         gbc.gridx = 1; gbc.weightx = 0.4; gbc.fill = GridBagConstraints.HORIZONTAL;
         panelBuscar.add(comboModo, gbc);
 
+        // Campo de texto para ingresar el criterio de búsqueda
         JTextField txtBuscar = new JTextField();
         txtBuscar.setToolTipText("Texto a buscar. Ej: 'Bruno', 'A-2025', 'T-1' o 'EN_PROCESO'");
         gbc.gridx = 2; gbc.weightx = 1.0; gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -84,7 +85,7 @@ public class PanelConvenios extends JPanel {
         gbc.gridx = 3; gbc.weightx = 0; gbc.fill = GridBagConstraints.NONE;
         panelBuscar.add(btnBuscar, gbc);
 
-        // Filtro de estado (solo para trámites)
+        // Filtro adicional por estado (específico para trámites)
         gbc.gridx = 0; gbc.gridy = 1;
         panelBuscar.add(new JLabel("Filtro estado (trámites):"), gbc);
         JComboBox<String> comboEstado = new JComboBox<>();
@@ -94,14 +95,14 @@ public class PanelConvenios extends JPanel {
         panelBuscar.add(comboEstado, gbc);
 
         panelNorth.add(panelBuscar, BorderLayout.SOUTH);
-
         add(panelNorth, BorderLayout.NORTH);
 
-        // Split pane para mostrar convenios y trámites
+        // --- SECCIÓN CENTRAL: Tablas con SplitPane ---
+        // Permite dividir el espacio verticalmente entre las dos tablas
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        splitPane.setResizeWeight(0.5);
+        splitPane.setResizeWeight(0.5); // 50% de espacio para cada tabla inicial
 
-        // Tabla de convenios
+        // Configuración de Tabla de Convenios (Superior)
         String[] columnasConvenios = {"ID", "Nombre", "Universidad", "País", "Duración", "Carrera"};
         modeloTablaConvenios = new DefaultTableModel(columnasConvenios, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
@@ -110,7 +111,7 @@ public class PanelConvenios extends JPanel {
         JScrollPane scrollConvenios = new JScrollPane(tablaConvenios);
         scrollConvenios.setBorder(BorderFactory.createTitledBorder("Convenios"));
 
-        // Tabla de trámites
+        // Configuración de Tabla de Trámites (Inferior)
         String[] columnasTramites = {"ID Trámite", "Convenio", "Estudiante", "Estado", "Documentos"};
         modeloTablaTramites = new DefaultTableModel(columnasTramites, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
@@ -123,7 +124,7 @@ public class PanelConvenios extends JPanel {
         splitPane.setBottomComponent(scrollTramites);
         add(splitPane, BorderLayout.CENTER);
 
-        // Panel inferior con botón ver detalles
+        // --- SECCIÓN SUR: Detalles ---
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton btnDetalles = new JButton("Ver Detalles del Trámite");
         btnDetalles.addActionListener(e -> {
@@ -133,67 +134,35 @@ public class PanelConvenios extends JPanel {
                 String idConvenio = (String) modeloTablaTramites.getValueAt(fila, 1);
                 mostrarDetallesTramite(idConvenio, idTramite);
             } else {
-                JOptionPane.showMessageDialog(this, "Seleccione un trámite", "Información", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Seleccione un trámite de la tabla inferior", "Información", JOptionPane.INFORMATION_MESSAGE);
             }
         });
         panelBotones.add(btnDetalles);
         add(panelBotones, BorderLayout.SOUTH);
 
-        // --- Lógica de búsqueda: acciones y refresco de tablas
-        Runnable limpiarTablas = () -> {
-            modeloTablaConvenios.setRowCount(0);
-            modeloTablaTramites.setRowCount(0);
-        };
-
-        // Helper para mostrar lista de convenios en la tabla
-        Consumer<java.util.List<Convenio>> mostrarConveniosEnTabla = lista -> {
-            modeloTablaConvenios.setRowCount(0);
-            for (Convenio c : lista) {
-                modeloTablaConvenios.addRow(new Object[]{
-                    c.getIdConvenio(), c.getNombre(), c.getUniversidadSocia(),
-                    c.getPais(), c.getDuracion(), c.getCarreraAsociada()
-                });
-            }
-        };
-
-        // Helper para mostrar lista de tramites en la tabla
-        Consumer<java.util.List<Tramite>> mostrarTramitesEnTabla = lista -> {
-            modeloTablaTramites.setRowCount(0);
-            for (Tramite t : lista) {
-                String docs = t.getDocumentos() == null || t.getDocumentos().isEmpty() ? "-" : t.getDocumentos().keySet().toString();
-                String convenioId = "-";
-                // intentar obtener convenio por búsqueda inversa: (si Tramite no tiene convenio directo)
-                for (Convenio c : herramientas.getConvenios()) {
-                    if (c.getTramites().contains(t)) { convenioId = c.getIdConvenio(); break; }
-                }
-                String estudiante = t.getEstudiante() == null ? "-" : t.getEstudiante().getRut();
-                modeloTablaTramites.addRow(new Object[]{t.getIdTramite(), convenioId, estudiante, t.getEstado().name(), docs});
-            }
-        };
-
-        // Acción del botón Buscar
+        // --- LÓGICA DE BÚSQUEDA INTEGRADA ---
         btnBuscar.addActionListener(e -> {
             String modo = (String) comboModo.getSelectedItem();
             String q = txtBuscar.getText().trim();
-            // limpiar tablas
+            
+            // Limpiamos resultados previos
             modeloTablaConvenios.setRowCount(0);
             modeloTablaTramites.setRowCount(0);
 
             try {
                 if ("Estudiantes por nombre".equals(modo)) {
+                    // Búsqueda de estudiantes y sus trámites asociados
                     if (q.isEmpty()) {
-                        JOptionPane.showMessageDialog(this, "Ingrese un nombre o parte del nombre", "Búsqueda", JOptionPane.INFORMATION_MESSAGE);
+                        JOptionPane.showMessageDialog(this, "Ingrese un nombre", "Búsqueda", JOptionPane.INFORMATION_MESSAGE);
                         return;
                     }
-                    // Buscar estudiantes por nombre (usa tu método del Control)
                     java.util.List<Estudiante> encontrados = herramientas.buscarEstudiantesPorNombre(q);
                     if (encontrados == null || encontrados.isEmpty()) {
-                        JOptionPane.showMessageDialog(this, "Sin resultados", "Búsqueda", JOptionPane.INFORMATION_MESSAGE);
+                        JOptionPane.showMessageDialog(this, "No se encontró ningún estudiante con ese nombre", "Búsqueda", JOptionPane.INFORMATION_MESSAGE);
                         return;
                     }
 
-                    // REQUISITO: La tabla superior mostrará los convenios a los que el/los estudiantes han postulado.
-                    // Construimos un conjunto de convenios relacionados y una lista de trámites del/los estudiantes.
+                    // Usamos un Set para no repetir convenios si un estudiante tiene varios trámites en el mismo
                     LinkedHashSet<Convenio> conveniosRelacionados = new LinkedHashSet<>();
                     java.util.List<Tramite> tramitesEncontrados = new ArrayList<>();
 
@@ -208,7 +177,7 @@ public class PanelConvenios extends JPanel {
                         }
                     }
 
-                    // Mostrar convenios relacionados en la tabla superior
+                    // Llenar tabla superior con convenios donde el estudiante participa
                     for (Convenio c : conveniosRelacionados) {
                         modeloTablaConvenios.addRow(new Object[]{
                             c.getIdConvenio(), c.getNombre(), c.getUniversidadSocia(),
@@ -216,79 +185,38 @@ public class PanelConvenios extends JPanel {
                         });
                     }
 
-                    // Mostrar trámites del/los estudiantes en la tabla inferior
+                    // Llenar tabla inferior con los trámites específicos de esos estudiantes
                     for (Tramite t : tramitesEncontrados) {
-                        String docs = (t.getDocumentos() == null || t.getDocumentos().isEmpty()) ? "-" : t.getDocumentos().keySet().toString();
+                        String docs = (t.getDocumentos() == null || t.getDocumentos().isEmpty()) ? "0" : String.valueOf(t.getDocumentos().size());
                         String convenioId = "-";
-                        // Obtener convenido padre (si Tramite no guarda referencia)
                         for (Convenio c : herramientas.getConvenios()) {
                             if (c.getTramites().contains(t)) { convenioId = c.getIdConvenio(); break; }
                         }
-                        String estudianteRut = t.getEstudiante() == null ? "-" : t.getEstudiante().getRut();
-                        modeloTablaTramites.addRow(new Object[]{t.getIdTramite(), convenioId, estudianteRut, t.getEstado().name(), docs});
-                    }
-
-                    // Si quieres, seleccionar la primera fila de convenios para enfoque visual
-                    if (modeloTablaConvenios.getRowCount() > 0) {
-                        // tablaConvenios.setRowSelectionInterval(0, 0); // requiere referencia a la JTable
+                        modeloTablaTramites.addRow(new Object[]{t.getIdTramite(), convenioId, t.getEstudiante().getRut(), t.getEstado().name(), docs});
                     }
 
                 } else if ("Convenios por ID".equals(modo)) {
-                    if (q.isEmpty()) {
-                        JOptionPane.showMessageDialog(this, "Ingrese un ID o parte del ID", "Búsqueda", JOptionPane.INFORMATION_MESSAGE);
-                        return;
-                    }
+                    // Lógica para filtrar por identificador de convenio
                     java.util.List<Convenio> encontrados = herramientas.buscarConveniosPorId(q);
-                    if (encontrados == null || encontrados.isEmpty()) {
-                        JOptionPane.showMessageDialog(this, "Sin resultados", "Búsqueda", JOptionPane.INFORMATION_MESSAGE);
-                        return;
-                    }
-                    // mostrar convenios y sus trámites (igual que antes)
                     for (Convenio c : encontrados) {
-                        modeloTablaConvenios.addRow(new Object[]{
-                            c.getIdConvenio(), c.getNombre(), c.getUniversidadSocia(),
-                            c.getPais(), c.getDuracion(), c.getCarreraAsociada()
-                        });
+                        modeloTablaConvenios.addRow(new Object[]{c.getIdConvenio(), c.getNombre(), c.getUniversidadSocia(), c.getPais(), c.getDuracion(), c.getCarreraAsociada()});
+                        for (Tramite t : c.getTramites()) {
+                            modeloTablaTramites.addRow(new Object[]{t.getIdTramite(), c.getIdConvenio(), t.getEstudiante().getRut(), t.getEstado().name(), t.getDocumentos().size()});
+                        }
                     }
-                    java.util.List<Tramite> tramites = new ArrayList<>();
-                    for (Convenio c : encontrados) tramites.addAll(c.getTramites());
-                    for (Tramite t : tramites) {
-                        String docs = (t.getDocumentos() == null || t.getDocumentos().isEmpty()) ? "-" : t.getDocumentos().keySet().toString();
-                        String estudianteRut = t.getEstudiante() == null ? "-" : t.getEstudiante().getRut();
-                        modeloTablaTramites.addRow(new Object[]{t.getIdTramite(), /*convenio*/ t.getIdTramite(), estudianteRut, t.getEstado().name(), docs});
-                    }
-
-                } else { // "Trámites por ID/Estado"
-                    if (q.isEmpty()) {
-                        JOptionPane.showMessageDialog(this, "Ingrese texto para buscar trámites", "Búsqueda", JOptionPane.INFORMATION_MESSAGE);
-                        return;
-                    }
+                } else { 
+                    // Búsqueda por ID de trámite o Estado del mismo
                     java.util.List<Tramite> encontrados = herramientas.buscarTramitesPorTexto(q);
-                    if (encontrados == null || encontrados.isEmpty()) {
-                        JOptionPane.showMessageDialog(this, "Sin resultados", "Búsqueda", JOptionPane.INFORMATION_MESSAGE);
-                        return;
-                    }
-                    // Mostrar trámites en la tabla inferior y convenios relacionados en la superior
-                    LinkedHashSet<Convenio> conveniosRelacionados = new LinkedHashSet<>();
                     for (Tramite t : encontrados) {
+                        // Encontrar el convenio padre para mostrarlo en la tabla
+                        Convenio padre = null;
                         for (Convenio c : herramientas.getConvenios()) {
-                            if (c.getTramites().contains(t)) conveniosRelacionados.add(c);
+                            if (c.getTramites().contains(t)) { padre = c; break; }
                         }
-                    }
-                    for (Convenio c : conveniosRelacionados) {
-                        modeloTablaConvenios.addRow(new Object[]{
-                            c.getIdConvenio(), c.getNombre(), c.getUniversidadSocia(),
-                            c.getPais(), c.getDuracion(), c.getCarreraAsociada()
-                        });
-                    }
-                    for (Tramite t : encontrados) {
-                        String docs = (t.getDocumentos() == null || t.getDocumentos().isEmpty()) ? "-" : t.getDocumentos().keySet().toString();
-                        String convenioId = "-";
-                        for (Convenio c : herramientas.getConvenios()) {
-                            if (c.getTramites().contains(t)) { convenioId = c.getIdConvenio(); break; }
+                        if (padre != null) {
+                            modeloTablaConvenios.addRow(new Object[]{padre.getIdConvenio(), padre.getNombre(), padre.getUniversidadSocia(), padre.getPais(), padre.getDuracion(), padre.getCarreraAsociada()});
                         }
-                        String estudianteRut = t.getEstudiante() == null ? "-" : t.getEstudiante().getRut();
-                        modeloTablaTramites.addRow(new Object[]{t.getIdTramite(), convenioId, estudianteRut, t.getEstado().name(), docs});
+                        modeloTablaTramites.addRow(new Object[]{t.getIdTramite(), (padre != null ? padre.getIdConvenio() : "-"), t.getEstudiante().getRut(), t.getEstado().name(), t.getDocumentos().size()});
                     }
                 }
             } catch (Exception ex) {
@@ -296,187 +224,95 @@ public class PanelConvenios extends JPanel {
             }
         });
 
-        // Doble clic en fila de tablaConvenios: mostrar detalle del convenio
+        // Eventos de doble clic para acceso rápido a información
         tablaConvenios.addMouseListener(new MouseAdapter() {
-            @Override
             public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
+                if (e.getClickCount() == 2) { // Doble clic
                     int fila = tablaConvenios.getSelectedRow();
                     if (fila >= 0) {
                         String id = (String) modeloTablaConvenios.getValueAt(fila, 0);
-                        // si la fila corresponde a un convenio real, buscar y mostrar detalles
                         Convenio c = herramientas.buscarConvenio(id);
-                        if (c != null) {
-                            JOptionPane.showMessageDialog(
-                                    PanelConvenios.this,
-                                    c.toString(),
-                                    "Detalle Convenio",
-                                    JOptionPane.INFORMATION_MESSAGE
-                                );
-                        } else {
-                            // quizá es una fila de estudiante (RUT) creada por búsqueda; en ese caso mostrar estudiante
-                            Estudiante s = herramientas.buscarEstudiante(id);
-                            if (s != null) {
-                                JOptionPane.showMessageDialog(
-                                    PanelConvenios.this,
-                                    s.toString(),
-                                    "Detalle Estudiante",
-                                    JOptionPane.INFORMATION_MESSAGE
-                                );
-                            }
-                        }
+                        if (c != null) JOptionPane.showMessageDialog(PanelConvenios.this, c.toString(), "Detalle Convenio", JOptionPane.INFORMATION_MESSAGE);
                     }
                 }
             }
         });
-
-        // Doble clic en fila de tablaTramites: mostrar detalles del trámite
-        tablaTramites.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
-                    int fila = tablaTramites.getSelectedRow();
-                    if (fila >= 0) {
-                        String idTramite = (String) modeloTablaTramites.getValueAt(fila, 0);
-                        String idConvenio = (String) modeloTablaTramites.getValueAt(fila, 1);
-                        mostrarDetallesTramite(idConvenio, idTramite);
-                    }
-                }
-            }
-        });
-
     }
+
+    /**
+     * Crea y muestra una ventana emergente (JDialog) con el desglose de documentos
+     * del trámite seleccionado, comparándolos con los requisitos del convenio.
+     */
     private void mostrarDetallesTramite(String idConvenio, String idTramite) {
         Convenio convenio = herramientas.buscarConvenio(idConvenio);
         if (convenio == null) return;
         
         Tramite tramite = convenio.getTramites().stream()
             .filter(t -> t.getIdTramite().equals(idTramite))
-            .findFirst()
-            .orElse(null);
+            .findFirst().orElse(null);
         
         if (tramite == null) return;
         
-        JDialog dialog = new JDialog(
-            (Frame) SwingUtilities.getWindowAncestor(this),
-            "Detalles del Trámite",
-            true
-            );
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Detalles del Trámite", true);
         dialog.setLayout(new BorderLayout());
         
-        JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        JPanel panelInfo = new JPanel(new GridBagLayout());
+        panelInfo.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(5, 5, 5, 5); gbc.anchor = GridBagConstraints.WEST;
         
-        // Información del trámite
-        gbc.gridx = 0; gbc.gridy = 0;
-        panel.add(new JLabel("<html><b>ID Trámite:</b></html>"), gbc);
-        gbc.gridx = 1;
-        panel.add(new JLabel(tramite.getIdTramite()), gbc);
+        // Datos del Estudiante y Trámite
+        gbc.gridy = 0; panelInfo.add(new JLabel("<html><b>ID Trámite:</b> " + tramite.getIdTramite() + "</html>"), gbc);
+        gbc.gridy = 1; panelInfo.add(new JLabel("<html><b>Estudiante:</b> " + tramite.getEstudiante().getNombre() + "</html>"), gbc);
+        gbc.gridy = 2; panelInfo.add(new JLabel("<html><b>Convenio:</b> " + convenio.getNombre() + "</html>"), gbc);
         
-        gbc.gridx = 0; gbc.gridy = 1;
-        panel.add(new JLabel("<html><b>Estudiante:</b></html>"), gbc);
-        gbc.gridx = 1;
-        panel.add(new JLabel(tramite.getEstudiante().getNombre()), gbc);
-        
-        gbc.gridx = 0; gbc.gridy = 2;
-        panel.add(new JLabel("<html><b>RUT:</b></html>"), gbc);
-        gbc.gridx = 1;
-        panel.add(new JLabel(tramite.getEstudiante().getRut()), gbc);
-        
-        gbc.gridx = 0; gbc.gridy = 3;
-        panel.add(new JLabel("<html><b>Convenio:</b></html>"), gbc);
-        gbc.gridx = 1;
-        panel.add(new JLabel(convenio.getNombre()), gbc);
-        
-        gbc.gridx = 0; gbc.gridy = 4;
-        panel.add(new JLabel("<html><b>Estado:</b></html>"), gbc);
-        gbc.gridx = 1;
-        JLabel lblEstado = new JLabel(tramite.getEstado().toString());
-        if (tramite.getEstado() == Tramite.Estado.COMPLETO) {
-            lblEstado.setForeground(new Color(0, 128, 0));
-        } else {
-            lblEstado.setForeground(new Color(255, 140, 0));
-        }
-        panel.add(lblEstado, gbc);
-        
-        // Tabla de documentos
-        gbc.gridx = 0; gbc.gridy = 5;
-        gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.BOTH;
-        
-        String[] columnas = {"Tipo Documento", "Estado", "Archivo", "Fecha"};
+        // Tabla de requisitos vs documentos subidos
+        String[] columnas = {"Requisito", "Estado", "Archivo"};
         DefaultTableModel modelo = new DefaultTableModel(columnas, 0);
-        
         for (TipoDocumento req : convenio.getRequisitos()) {
-            Object[] fila;
-            if (tramite.getDocumentos().containsKey(req)) {
-                DocumentoSubido doc = tramite.getDocumentos().get(req);
-                fila = new Object[]{
-                    req.toString(),
-                    "✓ Subido",
-                    doc.getNombreArchivo(),
-                    doc.getFechaSubida().toString()
-                };
-            } else {
-                fila = new Object[]{
-                    req.toString(),
-                    "✗ Pendiente",
-                    "-",
-                    "-"
-                };
-            }
-            modelo.addRow(fila);
+            boolean subido = tramite.getDocumentos().containsKey(req);
+            modelo.addRow(new Object[]{
+                req.toString(), 
+                subido ? "✓ RECIBIDO" : "✗ PENDIENTE", 
+                subido ? tramite.getDocumentos().get(req).getNombreArchivo() : "---"
+            });
         }
         
-        JTable tabla = new JTable(modelo);
-        tabla.setEnabled(false);
-        JScrollPane scroll = new JScrollPane(tabla);
-        scroll.setPreferredSize(new Dimension(500, 150));
-        panel.add(scroll, gbc);
+        JTable tablaReq = new JTable(modelo);
+        panelInfo.add(new JScrollPane(tablaReq), gbc); // gbc debe ajustarse para expandir
         
-        dialog.add(panel, BorderLayout.CENTER);
-        
-        // Botón cerrar
-        JPanel panelBoton = new JPanel();
+        dialog.add(panelInfo, BorderLayout.CENTER);
         JButton btnCerrar = new JButton("Cerrar");
         btnCerrar.addActionListener(e -> dialog.dispose());
-        panelBoton.add(btnCerrar);
-        dialog.add(panelBoton, BorderLayout.SOUTH);
+        dialog.add(btnCerrar, BorderLayout.SOUTH);
         
-        dialog.setSize(600, 400);
+        dialog.setSize(500, 450);
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
     }
-     public void actualizarTablas() {
-        // Actualizar tabla de convenios
+
+    /**
+     * Limpia y vuelve a cargar todos los datos de la base de datos
+     * en las tablas del panel.
+     */
+    public void actualizarTablas() {
         modeloTablaConvenios.setRowCount(0);
-        for (Convenio c : herramientas.getConvenios()) {
-            Object[] fila = {
-                c.getIdConvenio(),
-                c.getNombre(),
-                c.getUniversidadSocia(),
-                c.getPais(),
-                c.getDuracion(),
-                c.getCarreraAsociada()
-            };
-            modeloTablaConvenios.addRow(fila);
-        }
-        
-        // Actualizar tabla de trámites
         modeloTablaTramites.setRowCount(0);
+        
         for (Convenio c : herramientas.getConvenios()) {
+            modeloTablaConvenios.addRow(new Object[]{
+                c.getIdConvenio(), c.getNombre(), c.getUniversidadSocia(),
+                c.getPais(), c.getDuracion(), c.getCarreraAsociada()
+            });
+            
             for (Tramite t : c.getTramites()) {
-                Object[] fila = {
+                modeloTablaTramites.addRow(new Object[]{
                     t.getIdTramite(),
                     c.getIdConvenio(),
                     t.getEstudiante().getNombre() + " (" + t.getEstudiante().getRut() + ")",
                     t.getEstado().toString(),
                     t.getDocumentos().size() + "/" + c.getRequisitos().size()
-                };
-                modeloTablaTramites.addRow(fila);
+                });
             }
         }
     }
