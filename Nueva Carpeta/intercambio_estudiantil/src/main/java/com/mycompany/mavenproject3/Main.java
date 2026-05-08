@@ -58,7 +58,16 @@ public class Main extends JFrame
     private void initComponents() {
 
         setTitle("Sistema de Gestión de Intercambio Estudiantil");
+        // 1. Esto detiene el cierre automático
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+
+        // 2. Esto agrega la lógica para que la X funcione y llame a tu método guardarYSalir
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                guardarYSalir(); // Ahora sí llamará al diálogo de confirmación
+            }
+        });
 
         setLayout(new BorderLayout());
 
