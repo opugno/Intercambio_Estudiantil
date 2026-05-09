@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
+import java.io.*;
 
 
 import java.io.BufferedWriter;
@@ -104,6 +105,20 @@ public class Main extends JFrame
         System.out.println("✓ GUI actualizada");
     }
     
+    private void abrirCarpetaDatos() {
+        try {
+            File carpeta = new File("data");
+            if (!carpeta.exists()) {
+                carpeta.mkdirs(); // crea la carpeta si no existe
+            }
+            Desktop.getDesktop().open(carpeta);
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this, 
+                "No se pudo abrir la carpeta: " + ex.getMessage(),
+                "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
     private void initComponents() {
 
         setTitle("Sistema de Gestión de Intercambio Estudiantil");
@@ -137,6 +152,7 @@ public class Main extends JFrame
         panelGestionTramites = new PanelGestionTramites(herramientas, this);
 
 
+
         tabbedPane.addTab("Registrar Estudiante", panelEstudiantes);
         tabbedPane.addTab("Crear Trámite", panelTramites);
         tabbedPane.addTab("Subir Documentos", panelDocumentos);
@@ -157,6 +173,8 @@ public class Main extends JFrame
         panelInfo.add(lblInfo);
 
         JButton btnGuardar = new JButton("💾 Guardar Datos");
+        JButton btnAbrirCarpeta = new JButton("📁 Abrir carpeta de datos");
+
 
         btnGuardar.addActionListener(e -> {
             try {
@@ -176,7 +194,10 @@ public class Main extends JFrame
             }
         });
 
+        btnAbrirCarpeta.addActionListener(e -> abrirCarpetaDatos());
+
         panelInfo.add(btnGuardar);
+        panelInfo.add(btnAbrirCarpeta);
 
         add(panelInfo, BorderLayout.SOUTH);
 
