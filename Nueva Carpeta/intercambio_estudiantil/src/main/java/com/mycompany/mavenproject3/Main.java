@@ -31,6 +31,7 @@ public class Main extends JFrame
     private JPanel panelRequisitos;
     private JPanel panelGestionConvenios;
     private JPanel panelGestionEst;
+    private JPanel panelGestionTramites;
     
     // Componentes reutilizables
     private JComboBox<String> comboConvenios;
@@ -133,6 +134,8 @@ public class Main extends JFrame
 
         panelGestionConvenios = new PanelGestionConvenios(herramientas, this);
         panelGestionEst = new PanelGestionEstudiantes(herramientas, this);
+        panelGestionTramites = new PanelGestionTramites(herramientas, this);
+
 
         tabbedPane.addTab("Registrar Estudiante", panelEstudiantes);
         tabbedPane.addTab("Crear Trámite", panelTramites);
@@ -141,6 +144,7 @@ public class Main extends JFrame
         tabbedPane.addTab("Configurar Requisitos", panelRequisitos);
         tabbedPane.addTab("Convenios", panelGestionConvenios);
         tabbedPane.addTab("Gestión Estudiantes", panelGestionEst);
+        tabbedPane.addTab("Gestión Trámites", panelGestionTramites);
        
 
         add(tabbedPane, BorderLayout.CENTER);
@@ -420,6 +424,23 @@ public class Main extends JFrame
             return false;
         }
    }
+
+    /**
+    * Método público para que otros paneles puedan solicitar la persistencia de datos.
+    * Guarda los datos actuales en los archivos CSV.
+    */
+    public void guardarDatos() {
+        try {
+            dataStore.save();
+            System.out.println("Datos guardados automáticamente");
+        } catch (java.io.IOException ex) {
+            System.err.println("Error al guardar: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this,
+                "Error al guardar: " + ex.getMessage(),
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+        }
+    }
     
     public static void main(String[] args) {
         try {
