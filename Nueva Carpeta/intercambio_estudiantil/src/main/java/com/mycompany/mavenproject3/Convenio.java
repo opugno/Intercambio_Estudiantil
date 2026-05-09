@@ -80,11 +80,13 @@ public class Convenio
     //    this.estado = estado;
     //}
     
-    public Set<TipoDocumento> getRequisitos(){
-        return requisitos; 
-    }
-    public List<Tramite> getTramites(){
+    /*public List<Tramite> getTramites(){
         return tramites; 
+    }*/
+
+    // No retorna coleccion asi
+    public List<Tramite> getTramites() {
+        return Collections.unmodifiableList(tramites);  // copia defensiva inmutable
     }
 
     //METODOS
@@ -107,6 +109,11 @@ public class Convenio
         {
             t.setEstado(Tramite.Estado.EN_PROCESO);
         }
+    }
+    
+
+    public Set<TipoDocumento> getRequisitos() {
+        return Collections.unmodifiableSet(requisitos);
     }
     
     // Gestión de los requisitos para los convenios, pero por Menú
@@ -150,5 +157,11 @@ public class Convenio
     public int hashCode() 
     {
         return idConvenio == null ? 0 : idConvenio.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Convenio{id=%s, nombre=%s, universidad=%s, país=%s}",
+            idConvenio, nombre, universidadSocia, pais);
     }
 }

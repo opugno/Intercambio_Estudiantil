@@ -134,7 +134,7 @@ public class PanelDocumentos extends JPanel {
         });
 
         // Acción: Registrar documento en el sistema
-        btnSubir.addActionListener(e -> {
+        /*btnSubir.addActionListener(e -> {
             String idConvenioRaw = (String) comboConvenioDoc.getSelectedItem();
             String idTramite = (String) comboTramite.getSelectedItem();
             TipoDocumento tipo = (TipoDocumento) comboTipoDoc.getSelectedItem();
@@ -161,6 +161,44 @@ public class PanelDocumentos extends JPanel {
                 actualizarEstadoTramite(comboConvenioDoc, comboTramite, areaEstado);
                 JOptionPane.showMessageDialog(this, "Documento subido exitosamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                 txtNombreArchivo.setText("");
+            }
+        });*/
+        // Dentro de initComponents(), después de crear los componentes...
+
+        btnSubir.addActionListener(e -> {
+            String idConvenioRaw = (String) comboConvenioDoc.getSelectedItem();
+            String idTramite = (String) comboTramite.getSelectedItem();
+            TipoDocumento tipo = (TipoDocumento) comboTipoDoc.getSelectedItem();
+            String nombreArchivo = txtNombreArchivo.getText().trim();
+
+            if (idConvenioRaw == null || idTramite == null || nombreArchivo.isEmpty()) {
+                JOptionPane.showMessageDialog(PanelDocumentos.this,
+                    "Complete todos los campos", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            String idReal = idConvenioRaw.split(" - ")[0];
+
+            try {
+                // Este método lanza TramiteNoEncontradoException y DocumentoDuplicadoException
+                herramientas.subirDocumentoATramiteStrict(idReal, idTramite, tipo, nombreArchivo);
+
+                // Actualizar vista
+                actualizarEstadoTramite(comboConvenioDoc, comboTramite, areaEstado);
+                JOptionPane.showMessageDialog(PanelDocumentos.this,
+                    "Documento subido exitosamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                txtNombreArchivo.setText("");
+
+            } catch (TramiteNoEncontradoException ex) {
+                JOptionPane.showMessageDialog(PanelDocumentos.this,
+                    "Error: " + ex.getMessage(),
+                    "Trámite no encontrado",
+                    JOptionPane.ERROR_MESSAGE);
+            } catch (DocumentoDuplicadoException ex) {
+                JOptionPane.showMessageDialog(PanelDocumentos.this,
+                    "Error: " + ex.getMessage(),
+                    "Documento duplicado",
+                    JOptionPane.ERROR_MESSAGE);
             }
         });
 

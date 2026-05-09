@@ -78,4 +78,10 @@ public class Estudiante
     public int hashCode() {
         return rut == null ? 0 : rut.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return String.format("Estudiante{RUT=%s, nombre=%s, carrera=%s, año=%d, estado=%s}",
+            rut, nombre, carrera, anioIngreso, estadoProceso);
+    }
 }

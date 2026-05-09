@@ -2,7 +2,8 @@ package com.mycompany.mavenproject3;
 import javax.swing.*;
 import java.awt.*;
 
-public class PanelEstudiantes extends JPanel {
+public class PanelEstudiantes extends JPanel 
+{
 
     private Control herramientas;
 
@@ -155,49 +156,47 @@ public class PanelEstudiantes extends JPanel {
         });
     }
         
-        private boolean validarFormatoRUT(String rut) {
-            if (rut == null || rut.isBlank()) return false;
+    private boolean validarFormatoRUT(String rut) {
+        if (rut == null || rut.isBlank()) return false;
 
-            String patron = "^\\d{1,2}\\.?\\d{3}\\.?\\d{3}-[\\dkK]$";
+        String patron = "^\\d{1,2}\\.?\\d{3}\\.?\\d{3}-[\\dkK]$";
 
-            if (!rut.matches(patron)) {
-                return false;
+        if (!rut.matches(patron)) {
+            return false;
+        }
+
+        String rutLimpio = rut.replaceAll("[^\\dkK]", "");
+
+        if (rutLimpio.length() < 2) return false;
+
+        String cuerpo = rutLimpio.substring(0, rutLimpio.length() - 1);
+        char dv = rutLimpio.charAt(rutLimpio.length() - 1);
+
+        try {
+            int suma = 0;
+            int multiplicador = 2;
+
+            for (int i = cuerpo.length() - 1; i >= 0; i--) {
+                suma += Character.getNumericValue(cuerpo.charAt(i)) * multiplicador;
+                multiplicador = (multiplicador == 7) ? 2 : multiplicador + 1;
             }
 
-            String rutLimpio = rut.replaceAll("[^\\dkK]", "");
+            int resto = 11 - (suma % 11);
 
-            if (rutLimpio.length() < 2) return false;
+            char dvCalculado;
 
-            String cuerpo = rutLimpio.substring(0, rutLimpio.length() - 1);
-            char dv = rutLimpio.charAt(rutLimpio.length() - 1);
-
-            try {
-                int suma = 0;
-                int multiplicador = 2;
-
-                for (int i = cuerpo.length() - 1; i >= 0; i--) {
-                    suma += Character.getNumericValue(cuerpo.charAt(i)) * multiplicador;
-                    multiplicador = (multiplicador == 7) ? 2 : multiplicador + 1;
-                }
-
-                int resto = 11 - (suma % 11);
-
-                char dvCalculado;
-
-                if (resto == 11) {
-                    dvCalculado = '0';
-                } else if (resto == 10) {
-                    dvCalculado = 'k';
-                } else {
-                    dvCalculado = (char) ('0' + resto);
-                }
-
-                return Character.toLowerCase(dv) == Character.toLowerCase(dvCalculado);
-
-            } catch (Exception e) {
-                return false;
+            if (resto == 11) {
+                dvCalculado = '0';
+            } else if (resto == 10) {
+                dvCalculado = 'k';
+            } else {
+                dvCalculado = (char) ('0' + resto);
             }
+
+            return Character.toLowerCase(dv) == Character.toLowerCase(dvCalculado);
+
+        } catch (Exception e) {
+            return false;
         }
     }
-
-   
+}

@@ -39,21 +39,69 @@ public class Main extends JFrame
     private DefaultTableModel modeloTablaTramites;
     
     public Main() 
-{
-    herramientas = new Control();
-    dataStore = new DataStore(herramientas);
+    {
+        herramientas = new Control();
+        dataStore = new DataStore(herramientas);
 
-    try {
-        dataStore.load();
-        System.out.println("Datos cargados exitosamente");
-    } catch (java.io.IOException e) {
-        System.out.println("No se encontraron datos previos, usando datos iniciales");
-        herramientas.datos();
+        //intentar cargar datos
+        boolean datosExistian = false;
+
+        /*try {
+            dataStore.load();
+            System.out.println("Datos cargados exitosamente");
+        } catch (java.io.IOException e) {
+            System.out.println("No se encontraron datos previos, usando datos iniciales");
+            herramientas.datos();
+        }*/
+
+        try {
+            dataStore.load();
+        
+            // CRÍTICO: Verificar si realmente hay datos
+            if (herramientas.getConvenios().isEmpty() && herramientas.getEstudiantes().isEmpty()) {
+                System.out.println("⚠️ Archivos CSV vacíos - Creando datos iniciales");
+                herramientas.datos();
+                dataStore.save(); // Guardar inmediatamente
+                System.out.println("✓ Datos iniciales guardados");
+            } else {
+                System.out.println("✓ Datos cargados: " + 
+                    herramientas.getConvenios().size() + " convenios, " + 
+                    herramientas.getEstudiantes().size() + " estudiantes");
+                datosExistian = true;
+            }
+        } 
+        catch (java.io.IOException e) 
+        {
+            System.out.println("⚠️ Error al cargar - Creando datos iniciales");
+            herramientas.datos();
+            try {
+                dataStore.save();
+                System.out.println("✓ Datos iniciales guardados");
+            } catch (java.io.IOException ex) {
+                System.err.println("❌ Error al guardar datos iniciales: " + ex.getMessage());
+            }
+        }
+
+        initComponents();
+        actualizarTodosDespuesDeCarga();
+        //actualizarCombos();
     }
 
-    initComponents();
-    actualizarCombos();
-}
+    /**
+    * Actualiza todos los paneles después de cargar datos del disco
+    * Debe llamarse después de dataStore.load()
+    */
+    private void actualizarTodosDespuesDeCarga() 
+    {
+        System.out.println("Actualizando GUI con datos cargados...");
+
+        // Actualizar panel de convenios
+        if (panelConvenios instanceof PanelConvenios) 
+        {
+            ((PanelConvenios) panelConvenios).actualizarTablas();
+        }
+        System.out.println("✓ GUI actualizada");
+    }
     
     private void initComponents() {
 

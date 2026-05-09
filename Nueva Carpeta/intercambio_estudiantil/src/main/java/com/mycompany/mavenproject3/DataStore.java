@@ -194,12 +194,15 @@ public class DataStore
         }
     }
 
-    private void guardarTramitesYDocs() throws IOException {
+    private void guardarTramitesYDocs() throws IOException 
+    {
         try (BufferedWriter wt = Files.newBufferedWriter(fTra);
-             BufferedWriter wd = Files.newBufferedWriter(fDoc)) {
+            BufferedWriter wd = Files.newBufferedWriter(fDoc)) {
 
-            for (Convenio c : control.getConvenios()) {
-                for (Tramite t : c.getTramites()) {
+            for (Convenio c : control.getConvenios()) 
+            {
+                for (Tramite t : c.getTramites()) 
+                {
                     wt.write(String.join(";", Arrays.asList(
                             t.getIdTramite(),
                             c.getIdConvenio(),
@@ -208,10 +211,8 @@ public class DataStore
                     )));
                     wt.newLine();
 
-                    // Iterar documentos con getDocumentos()
-                    for (Map.Entry<TipoDocumento, DocumentoSubido> entry : t.getDocumentos().entrySet()) {
-
-                    //for (var entry : t.getDocumentos().entrySet()) {
+                    // USAR getDocumentosParaPersistencia() en lugar de getDocumentos()
+                    for (Map.Entry<TipoDocumento, DocumentoSubido> entry : t.getDocumentosParaPersistencia().entrySet()) {
                         DocumentoSubido d = entry.getValue();
                         wd.write(String.join(";", Arrays.asList(
                                 t.getIdTramite(),

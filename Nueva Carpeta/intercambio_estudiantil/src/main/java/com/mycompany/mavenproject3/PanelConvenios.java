@@ -315,5 +315,8 @@ public class PanelConvenios extends JPanel {
                 });
             }
         }
+        System.out.println("Tablas actualizadas: " + 
+        modeloTablaConvenios.getRowCount() + " convenios, " + 
+        modeloTablaTramites.getRowCount() + " trámites");
     }
 }

@@ -55,6 +55,14 @@ public class Tramite
         this.documento = documento;
     }
     
+    /**
+    * Método package-private para persistencia
+    * Solo debe ser usado por DataStore en el mismo paquete
+    */
+    Map<TipoDocumento, DocumentoSubido> getDocumentosParaPersistencia() {
+        return documento; // Devuelve el mapa real, no la copia
+    }
+
     public Estado getEstado(){
         return estado;
     }
