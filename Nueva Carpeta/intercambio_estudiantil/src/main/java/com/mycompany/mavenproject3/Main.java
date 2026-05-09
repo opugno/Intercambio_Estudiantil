@@ -48,13 +48,6 @@ public class Main extends JFrame
         //intentar cargar datos
         boolean datosExistian = false;
 
-        /*try {
-            dataStore.load();
-            System.out.println("Datos cargados exitosamente");
-        } catch (java.io.IOException e) {
-            System.out.println("No se encontraron datos previos, usando datos iniciales");
-            herramientas.datos();
-        }*/
 
         try {
             dataStore.load();
@@ -83,6 +76,7 @@ public class Main extends JFrame
                 System.err.println("❌ Error al guardar datos iniciales: " + ex.getMessage());
             }
         }
+
 
         initComponents();
         actualizarTodosDespuesDeCarga();

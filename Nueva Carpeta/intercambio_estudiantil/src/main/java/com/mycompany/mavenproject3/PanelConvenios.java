@@ -242,7 +242,7 @@ public class PanelConvenios extends JPanel {
     /**
      * Crea y muestra una ventana emergente (JDialog) con el desglose de documentos
      * del trámite seleccionado, comparándolos con los requisitos del convenio.
-     */
+
     private void mostrarDetallesTramite(String idConvenio, String idTramite) {
         Convenio convenio = herramientas.buscarConvenio(idConvenio);
         if (convenio == null) return;
@@ -287,6 +287,119 @@ public class PanelConvenios extends JPanel {
         dialog.add(btnCerrar, BorderLayout.SOUTH);
         
         dialog.setSize(500, 450);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }*/
+    private void mostrarDetallesTramite(String idConvenio, String idTramite) 
+    {
+        Convenio convenio = herramientas.buscarConvenio(idConvenio);
+        if (convenio == null) return;
+
+        Tramite tramite = convenio.getTramites().stream()
+            .filter(t -> t.getIdTramite().equals(idTramite))
+            .findFirst().orElse(null);
+
+        if (tramite == null) return;
+
+        // Crear diálogo
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), 
+            "Detalles del Trámite", true);
+        dialog.setLayout(new BorderLayout(10, 10));
+
+        // Panel de información superior
+        JPanel panelInfo = new JPanel(new GridLayout(4, 1, 5, 5));
+        panelInfo.setBorder(BorderFactory.createEmptyBorder(15, 15, 10, 15));
+        panelInfo.setBackground(Color.WHITE);
+
+        JLabel lblIdTramite = new JLabel("ID Trámite: " + tramite.getIdTramite());
+        lblIdTramite.setFont(new Font("Arial", Font.PLAIN, 12));
+
+        JLabel lblEstudiante = new JLabel("Estudiante: " + tramite.getEstudiante().getNombre());
+        lblEstudiante.setFont(new Font("Arial", Font.BOLD, 13));
+
+        JLabel lblRUT = new JLabel("RUT: " + tramite.getEstudiante().getRut());
+        lblRUT.setFont(new Font("Arial", Font.PLAIN, 12));
+
+        JLabel lblConvenio = new JLabel("Convenio: " + convenio.getNombre());
+        lblConvenio.setFont(new Font("Arial", Font.PLAIN, 12));
+
+        panelInfo.add(lblIdTramite);
+        panelInfo.add(lblEstudiante);
+        panelInfo.add(lblRUT);
+        panelInfo.add(lblConvenio);
+
+        // Tabla de documentos
+        String[] columnas = {"Tipo Documento", "Estado", "Archivo", "Fecha"};
+        DefaultTableModel modelo = new DefaultTableModel(columnas, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        for (TipoDocumento req : convenio.getRequisitos()) {
+            boolean subido = tramite.getDocumentos().containsKey(req);
+            Object[] fila = new Object[4];
+            fila[0] = req.toString().replace("_", " ");
+            fila[1] = subido ? "✓ Subido" : "✗ Pendiente";
+            fila[2] = subido ? tramite.getDocumentos().get(req).getNombreArchivo() : "---";
+            fila[3] = subido ? tramite.getDocumentos().get(req).getFechaSubida().toString() : "---";
+            modelo.addRow(fila);
+        }
+
+        JTable tabla = new JTable(modelo);
+        tabla.setRowHeight(25);
+        tabla.getTableHeader().setBackground(new Color(70, 130, 180));
+        tabla.getTableHeader().setForeground(Color.WHITE);
+        tabla.getTableHeader().setFont(new Font("Arial", Font.BOLD, 12));
+
+        // Colores alternados
+        tabla.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public java.awt.Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                java.awt.Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                if (!isSelected) {
+                    if (row % 2 == 0) {
+                        c.setBackground(new Color(240, 248, 255));
+                    } else {
+                        c.setBackground(Color.WHITE);
+                    }
+                }
+
+                // Color especial para estado
+                if (column == 1) {
+                    if (value.toString().contains("✓")) {
+                        setForeground(new Color(0, 128, 0)); // Verde
+                    } else {
+                        setForeground(new Color(200, 0, 0)); // Rojo
+                    }
+                } else {
+                    setForeground(Color.BLACK);
+                }
+
+                return c;
+            }
+        });
+
+        JScrollPane scrollTabla = new JScrollPane(tabla);
+        scrollTabla.setBorder(BorderFactory.createEmptyBorder(0, 15, 10, 15));
+
+        // Botón cerrar
+        JPanel panelBoton = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        panelBoton.setBackground(Color.WHITE);
+        JButton btnCerrar = new JButton("Cerrar");
+        btnCerrar.setPreferredSize(new Dimension(100, 30));
+        btnCerrar.addActionListener(e -> dialog.dispose());
+        panelBoton.add(btnCerrar);
+
+        // Ensamblar
+        dialog.add(panelInfo, BorderLayout.NORTH);
+        dialog.add(scrollTabla, BorderLayout.CENTER);
+        dialog.add(panelBoton, BorderLayout.SOUTH);
+
+        dialog.setSize(650, 400);
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
     }
