@@ -162,6 +162,16 @@ public class Control
 
         agregarConvenio(new Convenio("A-2026", "Convenio A", "Universidad A", "País A", reqA, "Tres meses", "Arquitectura"));
         agregarConvenio(new Convenio("B-2026", "Convenio B", "Universidad B", "País B", reqB, "Doce meses", "Ingeniería Industrial"));
+
+        // Agregar un trámite de ejemplo para demostrar la sobrecarga con String
+        Convenio convenioEjemplo = buscarConvenio("A-2026");
+        Estudiante estudianteEjemplo = buscarEstudiante("11.111.111-1");
+        if (convenioEjemplo != null && estudianteEjemplo != null) {
+            Tramite tramiteEjemplo = convenioEjemplo.crearTramite(estudianteEjemplo);
+            // Usamos la sobrecarga que recibe String (no el Enum)
+            tramiteEjemplo.subirDocumento("CERT_NACIMIENTO", "cert_nacimiento_ejemplo.pdf");
+            System.out.println("Documento subido usando sobrecarga String (demostración)");
+        }
         
     }
     

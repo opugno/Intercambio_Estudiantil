@@ -35,4 +35,25 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <!-- Perfil por defecto: interfaz gráfica (GUI) -->
+    <profile>
+      <id>gui</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <exec.mainClass>com.mycompany.mavenproject3.Main</exec.mainClass>
+      </properties>
+    </profile>
+
+    <!-- Perfil para ejecutar la versión por consola -->
+    <profile>
+      <id>console</id>
+      <properties>
+        <exec.mainClass>com.mycompany.mavenproject3.ConsoleApp</exec.mainClass>
+      </properties>
+    </profile>
+  </profiles>
 </project>
